@@ -17,10 +17,12 @@ import PropertyReview from './steps/PropertyReview';
 import { createProperty } from '../services/api';
 import { enqueueSnackbar } from 'notistack';
 import { useNavigate } from 'react-router-dom';
+import PropertyMaps from './PropertyMaps';
 
 const steps = [
   'Basic Information',
   'Upload Photos',
+  'Add Maps',
   'Review & Submit'
 ];
 
@@ -51,6 +53,8 @@ const PropertyStepper = () => {
         return formData.photos.length > 0;
       case 2:
         return true;
+      case 3:
+        return true;
       default:
         return false;
     }
@@ -63,6 +67,8 @@ const PropertyStepper = () => {
       case 1:
         return <PropertyPhotos />;
       case 2:
+        return <PropertyMaps />
+      case 3:
         return <PropertyReview />;
       default:
         return <div>Unknown step</div>;

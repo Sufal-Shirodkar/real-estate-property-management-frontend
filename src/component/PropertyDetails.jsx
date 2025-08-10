@@ -121,7 +121,7 @@ function PropertyDetails() {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#f8f9fa' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: '#f8f9fa', margin: '10px'}}>
       {/* Hero Section with Image Carousel */}
       <Box sx={{ position: 'relative', height: { xs: '60vh', md: '70vh' }, overflow: 'hidden' }}>
         <ImageCarousel resortPhotos={propertyDetails.photos} />
