@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { enqueueSnackbar } from 'notistack'
 
-const baseUrl ='https://cu0pyg9fz0.execute-api.us-east-1.amazonaws.com/dev'
+const baseUrl = process.env.REACT_APP_API_URL
 
 export const submitFeedback = async (data) => {
     try{

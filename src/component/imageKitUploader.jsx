@@ -103,20 +103,8 @@ const S3PhotoUpload = () => {
       
       const response = await uploadToS3(file);
       console.log('Upload successful:', response);
-
-      // Create photo object with S3 response data
-      // Adjust this based on your actual S3 response structure
+      if(response){
       const photoData =  response?.photoUrls[0]||[];
-        // fileId: response.fileId || response.key || Date.now().toString(),
-        // name: file.name,
-        // url: response.url || response.location,
-        // thumbnail: response.thumbnailUrl || response.url || response.location,
-        // filePath: response.key || response.filePath,
-        // size: file.size,
-        // fileType: file.type,
-        // s3Key: response.key,
-        // s3Bucket: response.bucket
-
       dispatch(addPhoto(photoData));
       dispatch(setUploading(false));
       dispatch(setUploadProgress(100));
@@ -126,6 +114,7 @@ const S3PhotoUpload = () => {
       setTimeout(() => {
         dispatch(setUploadProgress(0));
       }, 1000);
+    }
 
     } catch (error) {
       console.error('Upload error:', error);

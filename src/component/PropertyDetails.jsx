@@ -1,40 +1,38 @@
-import { 
-  Box, 
-  Typography, 
-  Container, 
-  Grid, 
-  Paper, 
-  Chip, 
-  ImageList, 
-  ImageListItem, 
-  Skeleton, 
+import {
+  Box,
+  Typography,
+  Container,
+  Grid,
+  Paper,
+  Chip,
   Button,
+  IconButton,
   Divider,
-  Card,
-  CardMedia,
-  IconButton
+  Stack
 } from "@mui/material";
-import { 
+import {
   LocationOn as LocationIcon,
-  AttachMoney as MoneyIcon,
   Home as HomeIcon,
   ArrowBack as ArrowBackIcon,
   Share as ShareIcon,
   Favorite as FavoriteIcon,
-  FavoriteBorder as FavoriteBorderIcon
+  FavoriteBorder as FavoriteBorderIcon,
+  Bed as BedIcon,
+  Bathtub as BathtubIcon,
+  SquareFoot as SquareFootIcon
 } from '@mui/icons-material';
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getPropertyDetails } from "../services/api";
 import { enqueueSnackbar } from "notistack";
+import ImageCarousel from "./ImageCarousel";
 
-export default function PropertyDetails() {
+function PropertyDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [propertyDetails, setPropertyDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(0);
 
   useEffect(() => {
     (async () => {
@@ -55,257 +53,317 @@ export default function PropertyDetails() {
     })();
   }, [id]);
 
-  const formatPrice = (price) => {
-    if (!price) return "Price on request";
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: 0
-    }).format(price);
-  };
-
-  const getStatusLabel = (status) => {
-    const statusMap = {
-      forSale: 'For Sale',
-      openHouse: 'Open House',
-      priceReduced: 'Price Reduced',
-      sold: 'Sold'
-    };
-    return statusMap[status] || status;
-  };
-
-  const getStatusColor = (status) => {
-    const colorMap = {
-      forSale: 'primary',
-      openHouse: 'success',
-      priceReduced: 'warning',
-      sold: 'error'
-    };
-    return colorMap[status] || 'default';
-  };
-
-  const handleShare = () => {
+  const handleShare = async () => {
     if (navigator.share) {
-      navigator.share({
-        title: propertyDetails.name,
-        text: `Check out this property: ${propertyDetails.name}`,
-        url: window.location.href,
-      });
+      try {
+        await navigator.share({
+          title: propertyDetails?.propertyName || 'Property',
+          text: `Check out this amazing property: ${propertyDetails?.propertyName}`,
+          url: window.location.href,
+        });
+      } catch (error) {
+        console.log('Error sharing:', error);
+      }
     } else {
       navigator.clipboard.writeText(window.location.href);
       enqueueSnackbar('Link copied to clipboard!', { variant: 'success' });
     }
   };
 
+  const getStatusLabel = (status) => {
+    const statusMap = {
+      'for-sale': 'For Sale',
+      'for-rent': 'For Rent',
+      'sold': 'Sold',
+      'rented': 'Rented'
+    };
+    return statusMap[status] || status;
+  };
+
+  const getStatusColor = (status) => {
+    const colorMap = {
+      'for-sale': 'primary',
+      'for-rent': 'info',
+      'sold': 'success',
+      'rented': 'warning'
+    };
+    return colorMap[status] || 'default';
+  };
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price);
+  };
+
   if (loading) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Skeleton variant="rectangular" width="100%" height={400} sx={{ mb: 2 }} />
-        <Skeleton variant="text" sx={{ fontSize: '2rem', mb: 1 }} />
-        <Skeleton variant="text" sx={{ fontSize: '1.5rem', mb: 2 }} />
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={8}>
-            <Skeleton variant="rectangular" height={200} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Skeleton variant="rectangular" height={200} />
-          </Grid>
-        </Grid>
-      </Container>
+      <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Typography variant="h6">Loading...</Typography>
+      </Box>
     );
   }
 
   if (!propertyDetails) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Paper sx={{ p: 4, textAlign: 'center' }}>
-          <Typography variant="h5" color="text.secondary">
-            Property not found
-          </Typography>
-          <Button onClick={() => navigate('/')} sx={{ mt: 2 }}>
-            Go Back to Listings
-          </Button>
-        </Paper>
+      <Container maxWidth="lg" sx={{ py: 4, textAlign: 'center' }}>
+        <Typography variant="h5" color="text.secondary" sx={{ mb: 2 }}>
+          Property not found
+        </Typography>
+        <Button onClick={() => navigate('/')} variant="contained">
+          Go Back to Listings
+        </Button>
       </Container>
     );
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 2 }}>
-      {/* Header with Back Button and Actions */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={() => navigate('/')}
-          variant="outlined"
+    <Box sx={{ minHeight: '100vh', bgcolor: '#f8f9fa' }}>
+      {/* Hero Section with Image Carousel */}
+      <Box sx={{ position: 'relative', height: { xs: '60vh', md: '70vh' }, overflow: 'hidden' }}>
+        <ImageCarousel resortPhotos={propertyDetails.photos} />
+        
+        {/* Overlay Header */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            background: 'linear-gradient(180deg, rgba(0,0,0,0.5) 0%, transparent 100%)',
+            p: 2,
+            zIndex: 10
+          }}
         >
-          Back to Listings
-        </Button>
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <IconButton onClick={handleShare} color="primary">
-            <ShareIcon />
-          </IconButton>
-          <IconButton 
-            onClick={() => setIsFavorite(!isFavorite)} 
-            color="error"
-          >
-            {isFavorite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-          </IconButton>
+          <Container maxWidth="xl">
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Button
+                startIcon={<ArrowBackIcon />}
+                onClick={() => navigate('/')}
+                sx={{
+                  color: 'white',
+                  backgroundColor: 'rgba(255,255,255,0.1)',
+                  backdropFilter: 'blur(10px)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(255,255,255,0.2)',
+                  }
+                }}
+              >
+                Back to Listings
+              </Button>
+              
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <IconButton
+                  onClick={handleShare}
+                  sx={{
+                    color: 'white',
+                    backgroundColor: 'rgba(255,255,255,0.1)',
+                    backdropFilter: 'blur(10px)',
+                    '&:hover': {
+                      backgroundColor: 'rgba(255,255,255,0.2)',
+                    }
+                  }}
+                >
+                  <ShareIcon />
+                </IconButton>
+                <IconButton
+                  onClick={() => setIsFavorite(!isFavorite)}
+                  sx={{
+                    color: isFavorite ? '#ff1744' : 'white',
+                    backgroundColor: 'rgba(255,255,255,0.1)',
+                    backdropFilter: 'blur(10px)',
+                    '&:hover': {
+                      backgroundColor: 'rgba(255,255,255,0.2)',
+                    }
+                  }}
+                >
+                  {isFavorite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                </IconButton>
+              </Box>
+            </Box>
+          </Container>
         </Box>
       </Box>
 
-      <Grid container spacing={4}>
-        {/* Main Image Gallery */}
-        <Grid item xs={12} md={8}>
-          {propertyDetails.photos && propertyDetails.photos.length > 0 ? (
-            <Box>
-              {/* Main Image */}
-              <Card sx={{ mb: 2 }}>
-                <CardMedia
-                  component="img"
-                  height="600"
-                  image={propertyDetails.photos[selectedImage]||"https://via.placeholder.com/600x400"}
-                  alt={propertyDetails.name}
-                  sx={{ objectFit: 'cover' }}
+      {/* Property Information Section */}
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        <Grid container spacing={4}>
+          {/* Main Content */}
+          <Grid item xs={12} lg={8}>
+            <Paper sx={{ p: 4, mb: 3, borderRadius: 2, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
+              {/* Status and Price */}
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
+                <Chip
+                  label={getStatusLabel(propertyDetails.propertyStatus)}
+                  color={getStatusColor(propertyDetails.propertyStatus)}
+                  size="large"
+                  sx={{ fontWeight: 'bold' }}
                 />
-              </Card>
-              
-              {/* Thumbnail Gallery */}
-              {propertyDetails.photos.length > 1 && (
-                <ImageList sx={{ width: '100%', height: 120 }} cols={4} rowHeight={120}>
-                  {propertyDetails.photos.map((photo, index) => (
-                    <ImageListItem 
-                      key={index} 
-                      sx={{ 
-                        cursor: 'pointer',
-                        border: selectedImage === index ? '3px solid' : 'none',
-                        borderColor: 'primary.main',
-                        borderRadius: 1
-                      }}
-                      onClick={() => setSelectedImage(index)}
-                    >
-                      <img
-                        src={photo}
-                        alt={`Property ${index + 1}`}
-                        loading="lazy"
-                        style={{ objectFit: 'cover', borderRadius: '4px' }}
-                      />
-                    </ImageListItem>
-                  ))}
-                </ImageList>
-              )}
-            </Box>
-          ) : (
-            <Paper sx={{ height: 400, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Typography variant="h6" color="text.secondary">
-                No photos available
-              </Typography>
-            </Paper>
-          )}
-        </Grid>
-
-        {/* Property Information */}
-        <Grid item xs={12} md={4}>
-          <Paper sx={{ p: 3, position: 'sticky', top: 20 }}>
-            {/* Status Chip */}
-            <Box sx={{ mb: 2 }}>
-              <Chip 
-                label={getStatusLabel(propertyDetails.propertyStatus)}
-                color={getStatusColor(propertyDetails.propertyStatus)}
-                size="medium"
-              />
-            </Box>
-
-            {/* Price */}
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <MoneyIcon sx={{ mr: 1, color: 'success.main' }} />
-              <Typography variant="h4" color="success.main" fontWeight="bold">
-                {formatPrice(propertyDetails.price)}
-              </Typography>
-            </Box>
-
-            {/* Property Name */}
-            <Typography variant="h5" gutterBottom fontWeight="bold">
-              {propertyDetails.name}
-            </Typography>
-
-            {/* Location */}
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-              <LocationIcon sx={{ mr: 1, color: 'text.secondary' }} />
-              <Typography variant="body1" color="text.secondary">
-                {propertyDetails.location}
-              </Typography>
-            </Box>
-
-            <Divider sx={{ my: 2 }} />
-
-            {/* Quick Stats */}
-            {(propertyDetails.bedrooms || propertyDetails.bathrooms) && (
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="h6" gutterBottom>
-                  Property Features
+                <Typography
+                  variant="h3"
+                  color="primary"
+                  sx={{ fontWeight: 'bold', fontSize: { xs: '2rem', md: '3rem' } }}
+                >
+                  {formatPrice(propertyDetails.price)}
                 </Typography>
-                <Grid container spacing={2}>
-                  {propertyDetails.bedrooms && (
-                    <Grid item xs={6}>
-                      <Paper sx={{ p: 2, textAlign: 'center', backgroundColor: 'grey.50' }}>
-                        <Typography variant="h6" color="primary">
-                          {propertyDetails.bedrooms}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Bedrooms
-                        </Typography>
-                      </Paper>
-                    </Grid>
-                  )}
-                  {propertyDetails.bathrooms && (
-                    <Grid item xs={6}>
-                      <Paper sx={{ p: 2, textAlign: 'center', backgroundColor: 'grey.50' }}>
-                        <Typography variant="h6" color="primary">
-                          {propertyDetails.bathrooms}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Bathrooms
-                        </Typography>
-                      </Paper>
-                    </Grid>
-                  )}
-                </Grid>
               </Box>
-            )}
 
-            {/* Contact Buttons */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <Button variant="contained" fullWidth size="large">
+              {/* Property Title and Location */}
+              <Typography
+                variant="h4"
+                component="h1"
+                sx={{ fontWeight: 'bold', mb: 2, fontSize: { xs: '1.75rem', md: '2.5rem' } }}
+              >
+                {propertyDetails.propertyName}
+              </Typography>
+              
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, color: 'text.secondary' }}>
+                <LocationIcon sx={{ mr: 1 }} />
+                <Typography variant="h6">
+                  {propertyDetails.location}
+                </Typography>
+              </Box>
+
+              {/* Property Features */}
+              <Stack direction="row" spacing={4} sx={{ mb: 4 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <BedIcon color="primary" />
+                  <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                    {propertyDetails.bedrooms}
+                  </Typography>
+                  <Typography variant="body1" color="text.secondary">
+                    Bedrooms
+                  </Typography>
+                </Box>
+                
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <BathtubIcon color="primary" />
+                  <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                    {propertyDetails.bathrooms}
+                  </Typography>
+                  <Typography variant="body1" color="text.secondary">
+                    Bathrooms
+                  </Typography>
+                </Box>
+                
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <SquareFootIcon color="primary" />
+                  <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                    {propertyDetails.area?.toLocaleString()}
+                  </Typography>
+                  <Typography variant="body1" color="text.secondary">
+                    sq ft
+                  </Typography>
+                </Box>
+              </Stack>
+
+              <Divider sx={{ my: 3 }} />
+
+              {/* Description */}
+              <Box>
+                <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2, display: 'flex', alignItems: 'center' }}>
+                  <HomeIcon sx={{ mr: 1, color: 'primary.main' }} />
+                  About This Property
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    lineHeight: 1.8,
+                    fontSize: '1.1rem',
+                    color: 'text.secondary'
+                  }}
+                >
+                  {propertyDetails.description || 'Stunning contemporary villa featuring modern amenities and exceptional design. This property offers luxurious living spaces with premium finishes throughout.'}
+                </Typography>
+              </Box>
+            </Paper>
+          </Grid>
+
+          {/* Sidebar */}
+          <Grid item xs={12} lg={4}>
+            <Paper
+              sx={{
+                p: 3,
+                borderRadius: 2,
+                boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                position: 'sticky',
+                top: 20
+              }}
+            >
+              <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 3 }}>
+                Property Details
+              </Typography>
+              
+              <Stack spacing={2}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography color="text.secondary">Property Type:</Typography>
+                  <Typography sx={{ fontWeight: 'bold' }}>
+                    {propertyDetails.propertyType || 'Villa'}
+                  </Typography>
+                </Box>
+                
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography color="text.secondary">Year Built:</Typography>
+                  <Typography sx={{ fontWeight: 'bold' }}>
+                    {propertyDetails.yearBuilt || '2020'}
+                  </Typography>
+                </Box>
+                
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography color="text.secondary">Parking:</Typography>
+                  <Typography sx={{ fontWeight: 'bold' }}>
+                    {propertyDetails.parking || '2 Cars'}
+                  </Typography>
+                </Box>
+                
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography color="text.secondary">Lot Size:</Typography>
+                  <Typography sx={{ fontWeight: 'bold' }}>
+                    {propertyDetails.lotSize || '0.5 Acres'}
+                  </Typography>
+                </Box>
+              </Stack>
+
+              <Divider sx={{ my: 3 }} />
+
+              <Button
+                variant="contained"
+                size="large"
+                fullWidth
+                sx={{
+                  py: 1.5,
+                  fontSize: '1.1rem',
+                  fontWeight: 'bold',
+                  borderRadius: 2
+                }}
+              >
                 Contact Agent
               </Button>
-              <Button variant="outlined" fullWidth size="large">
+              
+              <Button
+                variant="outlined"
+                size="large"
+                fullWidth
+                sx={{
+                  mt: 2,
+                  py: 1.5,
+                  fontSize: '1.1rem',
+                  fontWeight: 'bold',
+                  borderRadius: 2
+                }}
+              >
                 Schedule Tour
               </Button>
-            </Box>
-          </Paper>
+            </Paper>
+          </Grid>
         </Grid>
-
-        {/* Description Section */}
-        <Grid item xs={12}>
-          <Paper sx={{ p: 4 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-              <HomeIcon sx={{ mr: 1, color: 'primary.main' }} />
-              <Typography variant="h5" fontWeight="bold">
-                About This Property
-              </Typography>
-            </Box>
-            <Typography 
-              variant="body1" 
-              lineHeight={1.8}
-              sx={{ fontSize: '1.1rem' }}
-            >
-              {propertyDetails.description}
-            </Typography>
-          </Paper>
-        </Grid>
-      </Grid>
-    </Container>
+      </Container>
+    </Box>
   );
 }
+
+export default PropertyDetails;
 
