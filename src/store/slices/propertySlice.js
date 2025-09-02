@@ -8,6 +8,10 @@ const initialState = {
     location: "",
     propertyStatus: "",
     photos: [],
+    position:{
+      lat: 0,
+      lng: 0
+    }
   },
   currentStep: 0,
   isUploading: false,
@@ -43,6 +47,9 @@ export const propertySlice = createSlice({
     removePhoto: (state, action) => {
       state.formData.photos = state.formData.photos.filter((_, index) => index !== action.payload);
     },
+    setPropertyPosition: (state, action) => {
+      state.formData.position = action.payload;
+    },
     setErrors: (state, action) => {
       state.errors = action.payload;
     },
@@ -66,7 +73,8 @@ export const {
   addPhoto,
   removePhoto,
   setErrors,
-  resetForm
+  resetForm,
+  setPropertyPosition
 } = propertySlice.actions;
 
 export default propertySlice.reducer; 

@@ -1,13 +1,15 @@
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import { useMemo, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
+import { setPropertyPosition, updateFormData } from "../store/slices/propertySlice";
 
 // Fix for default markers not showing
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
   iconUrl: require('leaflet/dist/images/marker-icon.png'),
-//   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
 // Create a custom red marker icon
@@ -21,18 +23,27 @@ const customIcon = L.icon({
   iconSize: [32, 32],
   iconAnchor: [16, 32],
   popupAnchor: [0, -32],
-//   shadowUrl: 'data:image/svg+xml;base64,' + btoa(`
-//     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 41 41" width="41" height="41">
-//       <ellipse cx="20.5" cy="37" rx="18" ry="3" fill="rgba(0,0,0,0.3)"/>
-//     </svg>
-//   `),
-//   shadowSize: [41, 41],
-//   shadowAnchor: [20, 37]
 });
 
 export default function PropertyMaps() {
+  const markerRef = useRef(null)
+  const [position, setPosition] = useState([12.9716, 77.5946])
+  const dispatch = useDispatch();
+
+  const handleDragEnd = useMemo(
+    () => ({
+      dragend() {
+        const marker = markerRef.current
+        if (marker != null) {
+          dispatch(setPropertyPosition(marker.getLatLng()));
+        }
+      },
+    }),
+    [],
+  )
+
   return (
-    <div style={{ position: 'relative' }}>
+    <div style={{ position: [12.9716, 77.5946] }}>
       <MapContainer 
         center={[12.9716, 77.5946]} 
         zoom={13} 
@@ -44,33 +55,30 @@ export default function PropertyMaps() {
         }}
       >
         <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
+          url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
+          attribution='&copy; <a href="https://www.google.com/maps">Google Maps</a> contributors'
         />
-        <Marker position={[12.9716, 77.5946]} icon={customIcon}>
+        <Marker 
+        ref={markerRef} 
+        position={position} 
+        icon={customIcon} 
+        draggable={true} 
+        eventHandlers={handleDragEnd}
+        >
           <Popup>
             <div style={{ 
               textAlign: 'center', 
-              padding: '10px',
               fontFamily: 'system-ui, -apple-system, sans-serif'
             }}>
               <div style={{ 
-                fontSize: '16px', 
+                fontSize: '12px', 
                 fontWeight: 'bold', 
                 color: '#e74c3c',
                 marginBottom: '5px'
               }}>
                 🏡 Property Location
               </div>
-              <div style={{ 
-                color: '#666', 
-                fontSize: '14px',
-                lineHeight: '1.4'
-              }}>
-                Bengaluru, Karnataka
-                <br />
-                <small>Click and drag to adjust</small>
-              </div>
+              
             </div>
           </Popup>
         </Marker>

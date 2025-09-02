@@ -19,6 +19,7 @@
     "dotenv": "^17.2.1",
     "imagekitio-react": "^4.3.0",
     "leaflet": "^1.9.4",
+    "leaflet.gridlayer.googlemutant": "^0.15.0",
     "notistack": "^3.0.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

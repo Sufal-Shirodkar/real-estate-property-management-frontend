@@ -2,6 +2,7 @@ import axios from 'axios'
 import { enqueueSnackbar } from 'notistack'
 
 const baseUrl = process.env.REACT_APP_API_URL
+const localUrl = process.env.REACT_APP_LOCAL_URL
 
 export const submitFeedback = async (data) => {
     try{
@@ -61,7 +62,7 @@ export const uploadPhotoToS3 = async (file, options = {}) => {
 export const createProperty = async (data) => {
     try{
         const authorization = localStorage.getItem('token')
-        const response = await axios.post(`${baseUrl}/property`, data, {
+        const response = await axios.post(`http://localhost:8000/property`, data, {
             headers: {
                 Authorization: authorization
             }
