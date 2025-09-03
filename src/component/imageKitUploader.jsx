@@ -29,7 +29,6 @@ import { enqueueSnackbar } from 'notistack';
 const S3PhotoUpload = () => {
   const dispatch = useDispatch();
   const photos = useSelector(state => state.property.formData.photos);
-  console.log({photos});
   const isUploading = useSelector(state => state.property.isUploading);
   const uploadProgress = useSelector(state => state.property.uploadProgress);
   const uploadRef = useRef();
@@ -70,7 +69,6 @@ const S3PhotoUpload = () => {
     const formData = new FormData();
     formData.append('files', file);
     const response = await axios.post('http://localhost:8000/upload-photos', formData);
-    console.log(response.data);
     return response.data;
 
    }catch(error){
@@ -85,7 +83,6 @@ const S3PhotoUpload = () => {
     if (!files || files.length === 0) return;
 
     const file = files[0];
-    console.log(file);
     
     // Validate file
     const validation = validateFile(file);
@@ -98,11 +95,8 @@ const S3PhotoUpload = () => {
       dispatch(setUploading(true));
       dispatch(setUploadProgress(0));
       setUploadError(null);
-
-      console.log('Starting upload for file:', file.name);
       
       const response = await uploadToS3(file);
-      console.log('Upload successful:', response);
       if(response){
       const photoData =  response?.photoUrls[0]||[];
       dispatch(addPhoto(photoData));
