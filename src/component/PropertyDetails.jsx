@@ -2,7 +2,6 @@ import {
   Box,
   Typography,
   Container,
-  Grid,
   Paper,
   Chip,
   Button,

@@ -11,6 +11,17 @@ const initialState = {
     position:{
       lat: 0,
       lng: 0
+    },
+    moreDetails: {
+      propertyType: '',
+      bedrooms: 0,
+      bathrooms: 0,
+      kitchens: 0,
+      isFurnished: false,
+      isParking: false,
+      isPetFriendly: false,
+      isSwimmingPool: false,
+      isGym: false,
     }
   },
   currentStep: 0,
@@ -50,6 +61,9 @@ export const propertySlice = createSlice({
     setPropertyPosition: (state, action) => {
       state.formData.position = action.payload;
     },
+    setMoreDetails: (state, action) => {
+      state.formData.moreDetails = action.payload;
+    },
     setErrors: (state, action) => {
       state.errors = action.payload;
     },
@@ -74,7 +88,8 @@ export const {
   removePhoto,
   setErrors,
   resetForm,
-  setPropertyPosition
+  setPropertyPosition,
+  setMoreDetails
 } = propertySlice.actions;
 
 export default propertySlice.reducer; 

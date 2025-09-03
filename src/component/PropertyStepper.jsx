@@ -18,11 +18,13 @@ import { createProperty } from '../services/api';
 import { enqueueSnackbar } from 'notistack';
 import { useNavigate } from 'react-router-dom';
 import PropertyMaps from './PropertyMaps';
+import PropertyMoreDetails from './steps/PropertyMoreDetails';
 
 const steps = [
   'Basic Information',
   'Upload Photos',
   'Add Maps',
+  'More Details',
   'Review & Submit'
 ];
 
@@ -30,7 +32,7 @@ const PropertyStepper = () => {
   const dispatch = useDispatch();
   const currentStep = useSelector(state => state.property.currentStep);
   const formData = useSelector(state => state.property.formData);
-  console.log({formData})
+  console.log({formData});
   const navigate = useNavigate();
 
   const handleNext = () => {
@@ -55,6 +57,8 @@ const PropertyStepper = () => {
         return true;
       case 3:
         return true;
+      case 4:
+        return true;
       default:
         return false;
     }
@@ -69,6 +73,8 @@ const PropertyStepper = () => {
       case 2:
         return <PropertyMaps />
       case 3:
+        return <PropertyMoreDetails />;
+      case 4:
         return <PropertyReview />;
       default:
         return <div>Unknown step</div>;

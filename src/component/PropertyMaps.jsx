@@ -35,11 +35,12 @@ export default function PropertyMaps() {
       dragend() {
         const marker = markerRef.current
         if (marker != null) {
+          setPosition(marker.getLatLng());
           dispatch(setPropertyPosition(marker.getLatLng()));
         }
       },
     }),
-    [],
+    [dispatch],
   )
 
   return (

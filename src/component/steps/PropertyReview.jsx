@@ -6,17 +6,22 @@ import {
   Paper,
   Chip,
   ImageList,
-  ImageListItem
+  ImageListItem,
+  Divider
 } from '@mui/material';
 import { 
   Home as HomeIcon,
   LocationOn as LocationIcon,
+  Weekend as WeekendIcon,
+  LocalParking as LocalParkingIcon,
+  Pets as PetsIcon,
+  Pool as PoolIcon,
+  FitnessCenter as FitnessCenterIcon,
 } from '@mui/icons-material';
 import { useSelector } from 'react-redux';
 
 const PropertyReview = () => {
   const formData = useSelector(state => state.property.formData);
-
   const formatPrice = (price) => {
     if (!price) return "Price on request";
     return new Intl.NumberFormat('en-US', {
@@ -25,7 +30,6 @@ const PropertyReview = () => {
       maximumFractionDigits: 0
     }).format(price);
   };
-
   const getStatusLabel = (status) => {
     const statusMap = {
       forSale: 'For Sale',
@@ -46,6 +50,14 @@ const PropertyReview = () => {
     return colorMap[status] || 'default';
   };
 
+  const amenities = [
+    { key: 'isFurnished', label: 'Furnished', Icon: WeekendIcon },
+    { key: 'isParking', label: 'Parking', Icon: LocalParkingIcon },
+    { key: 'isPetFriendly', label: 'Pet Friendly', Icon: PetsIcon },
+    { key: 'isSwimmingPool', label: 'Swimming Pool', Icon: PoolIcon },
+    { key: 'isGym', label: 'Gym', Icon: FitnessCenterIcon },
+  ];
+
   return (
     <Box>
       <Typography variant="h6" gutterBottom>
@@ -57,9 +69,9 @@ const PropertyReview = () => {
 
       <Grid container spacing={3}>
         {/* Property Overview */}
-        <Grid item xs={12}>
+        <Grid item xs={12} sx={{width: '100%'}}>
           <Paper sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2}}>
               <HomeIcon sx={{ mr: 1, color: 'primary.main' }} />
               <Typography variant="h6">Property Overview</Typography>
             </Box>
@@ -152,9 +164,60 @@ const PropertyReview = () => {
                   Photos
                 </Typography>
                 <Typography variant="body1" fontWeight="medium">
-                  {formData?.photos?.length || 0} uploaded
+                  {formData?.photos?.length || 0} 
+                </Typography>
+              
+              </Grid>
+              <Grid item xs={6} sm={3} sx={{padding: '10px'}}>
+                <Typography variant="body2" color="textSecondary">
+                  Property Type
+                </Typography>
+                <Typography variant="body1" fontWeight="medium">
+                  {formData?.moreDetails?.propertyType || ""}
                 </Typography>
               </Grid>
+              <Grid item xs={6} sm={3} sx={{padding: '10px'}}>
+                <Typography variant="body2" color="textSecondary">
+                  Bedrooms
+                </Typography>
+                <Typography variant="body1" fontWeight="medium">
+                  {formData?.moreDetails?.bedrooms || ""}
+                </Typography>
+              </Grid>
+              <Grid item xs={6} sm={3} sx={{padding: '10px'}}>
+                <Typography variant="body2" color="textSecondary">
+                  Bathrooms
+                </Typography>
+                <Typography variant="body1" fontWeight="medium">
+                  {formData?.moreDetails?.bathrooms || ""}
+                </Typography>
+              </Grid>
+              <Grid item xs={6} sm={3} sx={{padding: '10px'}}>
+                <Typography variant="body2" color="textSecondary">
+                  Kitchens
+                </Typography>
+                  <Typography variant="body1" fontWeight="medium">
+                  {formData?.moreDetails?.kitchens || ""}
+                </Typography>
+              </Grid>
+            </Grid>
+
+            <Divider sx={{ my: 3 }} />
+
+            <Typography variant="h6" gutterBottom>
+              Amenities
+            </Typography>
+            <Grid container spacing={2} sx={{ mt: 1 }}>
+              {amenities.map(({ key, label, Icon }) =>
+                formData.moreDetails?.[key] && (
+                  <Grid item xs={4} sm={3} md={2} key={key} sx={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                      <Icon sx={{ fontSize: 30, color: 'grey.400' }} />
+                      <Typography variant="caption" display="block" sx={{ ml: 1 }}>
+                        {label}
+                      </Typography>
+                  </Grid>
+                )
+              )}
             </Grid>
           </Paper>
         </Grid>
