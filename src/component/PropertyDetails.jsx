@@ -10,6 +10,9 @@ import {
   Divider,
   Stack
 } from "@mui/material";
+import "leaflet/dist/leaflet.css";
+import L from 'leaflet';
+
 import {
   LocationOn as LocationIcon,
   Home as HomeIcon,
@@ -26,6 +29,19 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getPropertyDetails } from "../services/api";
 import { enqueueSnackbar } from "notistack";
 import ImageCarousel from "./ImageCarousel";
+import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
+
+function MapResizeController() {
+  const map = useMap();
+
+  useEffect(() => {
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 100);
+  }, [map]);
+
+  return null;
+}
 
 function PropertyDetails() {
   const { id } = useParams();
@@ -34,11 +50,25 @@ function PropertyDetails() {
   const [loading, setLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
 
+  // Create a custom red marker icon
+const customIcon = L.icon({
+  iconUrl: 'data:image/svg+xml;base64,' + btoa(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
+      <path fill="#e74c3c" stroke="#fff" stroke-width="2" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+      <circle cx="12" cy="9" r="2.5" fill="#fff"/>
+    </svg>
+  `),
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
+
   useEffect(() => {
     (async () => {
       try {
         setLoading(true);
         const response = await getPropertyDetails(id);
+        console.log({response});
         if (response.status === 200) {
           setPropertyDetails(response.data.data || {});
         } else {
@@ -125,7 +155,7 @@ function PropertyDetails() {
       {/* Hero Section with Image Carousel */}
       <Box sx={{ position: 'relative', height: { xs: '60vh', md: '70vh' }, overflow: 'hidden' }}>
         <ImageCarousel resortPhotos={propertyDetails.photos} />
-        
+
         {/* Overlay Header */}
         <Box
           sx={{
@@ -154,7 +184,7 @@ function PropertyDetails() {
               >
                 Back to Listings
               </Button>
-              
+
               <Box sx={{ display: 'flex', gap: 1 }}>
                 <IconButton
                   onClick={handleShare}
@@ -190,9 +220,9 @@ function PropertyDetails() {
 
       {/* Property Information Section */}
       <Container maxWidth="xl" sx={{ py: 4 }}>
-        <Grid container spacing={4}>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4 }}>
           {/* Main Content */}
-          <Grid item xs={12} lg={8}>
+          <Box sx={{ flex: { md: '2 1 0' }, width: '100%' }}>
             <Paper sx={{ p: 4, mb: 3, borderRadius: 2, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
               {/* Status and Price */}
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
@@ -219,7 +249,7 @@ function PropertyDetails() {
               >
                 {propertyDetails.propertyName}
               </Typography>
-              
+
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, color: 'text.secondary' }}>
                 <LocationIcon sx={{ mr: 1 }} />
                 <Typography variant="h6">
@@ -238,7 +268,7 @@ function PropertyDetails() {
                     Bedrooms
                   </Typography>
                 </Box>
-                
+
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <BathtubIcon color="primary" />
                   <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
@@ -248,7 +278,7 @@ function PropertyDetails() {
                     Bathrooms
                   </Typography>
                 </Box>
-                
+
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <SquareFootIcon color="primary" />
                   <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
@@ -280,86 +310,44 @@ function PropertyDetails() {
                 </Typography>
               </Box>
             </Paper>
-          </Grid>
+          </Box>
 
           {/* Sidebar */}
-          <Grid item xs={12} lg={4}>
-            <Paper
-              sx={{
-                p: 3,
-                borderRadius: 2,
-                boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                position: 'sticky',
-                top: 20
-              }}
-            >
-              <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 3 }}>
-                Property Details
-              </Typography>
-              
-              <Stack spacing={2}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography color="text.secondary">Property Type:</Typography>
-                  <Typography sx={{ fontWeight: 'bold' }}>
-                    {propertyDetails.propertyType || 'Villa'}
-                  </Typography>
-                </Box>
-                
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography color="text.secondary">Year Built:</Typography>
-                  <Typography sx={{ fontWeight: 'bold' }}>
-                    {propertyDetails.yearBuilt || '2020'}
-                  </Typography>
-                </Box>
-                
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography color="text.secondary">Parking:</Typography>
-                  <Typography sx={{ fontWeight: 'bold' }}>
-                    {propertyDetails.parking || '2 Cars'}
-                  </Typography>
-                </Box>
-                
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography color="text.secondary">Lot Size:</Typography>
-                  <Typography sx={{ fontWeight: 'bold' }}>
-                    {propertyDetails.lotSize || '0.5 Acres'}
-                  </Typography>
-                </Box>
-              </Stack>
-
-              <Divider sx={{ my: 3 }} />
-
-              <Button
-                variant="contained"
-                size="large"
-                fullWidth
-                sx={{
-                  py: 1.5,
-                  fontSize: '1.1rem',
-                  fontWeight: 'bold',
-                  borderRadius: 2
-                }}
-              >
-                Contact Agent
-              </Button>
-              
-              <Button
-                variant="outlined"
-                size="large"
-                fullWidth
-                sx={{
-                  mt: 2,
-                  py: 1.5,
-                  fontSize: '1.1rem',
-                  fontWeight: 'bold',
-                  borderRadius: 2
-                }}
-              >
-                Schedule Tour
-              </Button>
-            </Paper>
-          </Grid>
-        </Grid>
+          <Box sx={{ flex: { md: '1 1 0' }, width: '100%' }}>
+            <Paper sx={{ height: '400px', borderRadius: 2, border: '1px solid #e0e0e0', overflow: 'hidden' }}>
+            {propertyDetails?.position && <MapContainer center={propertyDetails.position} zoom={13} style={{ height: '100%', width: '100%' }}>
+             <MapResizeController />
+             <TileLayer
+          //  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          //  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
+          attribution='&copy; <a href="https://www.google.com/maps">Google Maps</a> contributors'
+         />
+                <Marker
+         position={propertyDetails.position}
+         icon={customIcon}
+         >
+            <Popup>
+             <div style={{
+               textAlign: 'center',
+               fontFamily: 'system-ui, -apple-system, sans-serif'
+             }}>
+               <div style={{
+                 fontSize: '12px',
+                 fontWeight: 'bold',
+                 color: '#e74c3c',
+                 marginBottom: '5px'
+               }}>
+                 🏡 Property Location
+               </div>
+ 
+             </div>
+           </Popup>
+         </Marker>
+             </MapContainer>}
+             </Paper>
+          </Box>
+        </Box>
       </Container>
     </Box>
   );

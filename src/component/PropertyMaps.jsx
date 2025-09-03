@@ -3,7 +3,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
-import { setPropertyPosition, updateFormData } from "../store/slices/propertySlice";
+import { setPropertyPosition } from "../store/slices/propertySlice";
 
 // Fix for default markers not showing
 delete L.Icon.Default.prototype._getIconUrl;
@@ -43,7 +43,7 @@ export default function PropertyMaps() {
   )
 
   return (
-    <div style={{ position: [12.9716, 77.5946] }}>
+    <div style={{ position: 'relative' }}>
       <MapContainer 
         center={[12.9716, 77.5946]} 
         zoom={13} 
