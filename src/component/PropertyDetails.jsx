@@ -154,7 +154,11 @@ const customIcon = L.icon({
       </Container>
     );
   }
-  console.log({propertyDetails});
+
+  const handleFeedback = () => {
+    const id = propertyDetails.id;
+    navigate(`/feedback/${id}`);
+  };
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#f8f9fa', margin: '10px'}}>
@@ -189,6 +193,19 @@ const customIcon = L.icon({
                 }}
               >
                 Back to Listings
+              </Button>
+              <Button
+                onClick={handleFeedback}
+                sx={{
+                  color: 'white',
+                  backgroundColor: 'rgba(255,255,255,0.1)',
+                  backdropFilter: 'blur(10px)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(255,255,255,0.2)',
+                  }
+                }}
+              >
+                Feeback
               </Button>
 
               <Box sx={{ display: 'flex', gap: 1 }}>

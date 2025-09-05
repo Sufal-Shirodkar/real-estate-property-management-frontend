@@ -6,8 +6,8 @@ const baseUrl = process.env.REACT_APP_API_URL
 export const submitFeedback = async (data) => {
     try{
         const authorization = localStorage.getItem('token')
-        console.log({authorization})
-        const response = await axios.post(`${baseUrl}/feedback`, data, {
+        console.log({data})
+        const response = await axios.post(`http://localhost:8000/feedback`, data, {
             headers: {
                 Authorization: authorization
             }

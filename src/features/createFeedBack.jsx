@@ -20,6 +20,8 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { submitFeedback } from '../services/api';
+import { useNavigate, useParams } from 'react-router-dom';
+import { enqueueSnackbar } from 'notistack';
 
 const schema = yup.object().shape({
    name: yup.string().required('Name is required'),
@@ -32,13 +34,21 @@ export default function CreateFeedBack(){
     const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm({
       resolver: yupResolver(schema),
     });
-  
+    const { id } = useParams();
+    const navigate = useNavigate();
 
     const onSubmit = async (data) => {
       // this is the api call
       try{
-     await submitFeedback(data)
+        data.propertyId = id;
+    const response = await submitFeedback(data)
+     if(response.status === 201){
+        navigate('/');
         reset();
+     }
+     else{
+        enqueueSnackbar('Failed to submit feedback', {variant: 'error'})
+     }
       }catch(error){
         console.log(error)
       }

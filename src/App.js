@@ -6,20 +6,21 @@ import ListPropertyPage from "./features/listProperty";
 import { Provider } from 'react-redux';
 import { store } from './store/store';
 import PropertyDetails from "./component/PropertyDetails";
+import { Navbar } from "reactstrap";
 
 function App() {
   return (
     <Provider store={store}>
       <SnackbarProvider maxSnack={3}>
         <Router>
-          <div>
+          <Navbar>
             <Routes>
               <Route path="/" element={<ListPropertyPage />} />
               <Route path="/create-property" element={<CreateProperty />} />
-              <Route path="/create-feedback" element={<CreateFeedBack />} />
+              <Route path="/feedback/:id" element={<CreateFeedBack />} />
               <Route path="/property/:id" element={<PropertyDetails />} />
             </Routes>
-          </div>
+          </Navbar>
         </Router>
       </SnackbarProvider>
     </Provider>
