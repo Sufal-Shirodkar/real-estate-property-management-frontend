@@ -7,7 +7,8 @@ import {
   Button,
   IconButton,
   Divider,
-  Stack
+  Stack,
+  Grid
 } from "@mui/material";
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
@@ -21,7 +22,12 @@ import {
   FavoriteBorder as FavoriteBorderIcon,
   Bed as BedIcon,
   Bathtub as BathtubIcon,
-  SquareFoot as SquareFootIcon
+  Kitchen as KitchenIcon,
+  House as HouseIcon,
+  FitnessCenter as GymIcon,
+  DirectionsCar as ParkingIcon,
+  Pets as PetsIcon,
+  Pool as PoolIcon
 } from '@mui/icons-material';
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -148,6 +154,7 @@ const customIcon = L.icon({
       </Container>
     );
   }
+  console.log({propertyDetails});
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#f8f9fa', margin: '10px'}}>
@@ -222,7 +229,7 @@ const customIcon = L.icon({
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4 }}>
           {/* Main Content */}
           <Box sx={{ flex: { md: '2 1 0' }, width: '100%' }}>
-            <Paper sx={{ p: 4, mb: 3, borderRadius: 2, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
+            <Paper sx={{ p: 4, mb: 3, borderRadius: 2 }}>
               {/* Status and Price */}
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
                 <Chip
@@ -249,7 +256,7 @@ const customIcon = L.icon({
                 {propertyDetails.propertyName}
               </Typography>
 
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, color: 'text.secondary' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, color: 'text.secondary' ,height:"100px",overflow: 'auto'  }}>
                 <LocationIcon sx={{ mr: 1 }} />
                 <Typography variant="h6">
                   {propertyDetails.location}
@@ -261,7 +268,7 @@ const customIcon = L.icon({
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <BedIcon color="primary" />
                   <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                    {propertyDetails.bedrooms}
+                    {propertyDetails.moreDetails.bedrooms}
                   </Typography>
                   <Typography variant="body1" color="text.secondary">
                     Bedrooms
@@ -271,20 +278,27 @@ const customIcon = L.icon({
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <BathtubIcon color="primary" />
                   <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                    {propertyDetails.bathrooms}
+                    {propertyDetails?.moreDetails?.bathrooms}
                   </Typography>
                   <Typography variant="body1" color="text.secondary">
                     Bathrooms
                   </Typography>
                 </Box>
-
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <SquareFootIcon color="primary" />
+                <KitchenIcon color="primary" />
                   <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                    {propertyDetails.area?.toLocaleString()}
+                    {propertyDetails?.moreDetails?.kitchens}
                   </Typography>
                   <Typography variant="body1" color="text.secondary">
-                    sq ft
+                    Kitchen
+                  </Typography>
+                </Box>
+                
+
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <HouseIcon color="primary" />
+                  <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                    {propertyDetails.moreDetails?.propertyType}
                   </Typography>
                 </Box>
               </Stack>
@@ -292,7 +306,7 @@ const customIcon = L.icon({
               <Divider sx={{ my: 3 }} />
 
               {/* Description */}
-              <Box>
+              <Box sx={{ height:"200px", overflow: 'auto' }}>
                 <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2, display: 'flex', alignItems: 'center' }}>
                   <HomeIcon sx={{ mr: 1, color: 'primary.main' }} />
                   About This Property
@@ -312,13 +326,11 @@ const customIcon = L.icon({
           </Box>
 
           {/* Sidebar */}
-          <Box sx={{ flex: { md: '1 1 0' }, width: '100%' }}>
-            <Paper sx={{ height: '400px', borderRadius: 2, border: '1px solid #e0e0e0', overflow: 'hidden' }}>
+          <Box sx={{ flex: { md: '1 1 0' }, width: '100%'}}>
+            <Paper sx={{ height: '560px', borderRadius: 2, border: '1px solid #e0e0e0', overflow: 'hidden' }}>
             {propertyDetails?.position && <MapContainer center={propertyDetails.position} zoom={13} style={{ height: '100%', width: '100%' }}>
              <MapResizeController />
              <TileLayer
-          //  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          //  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
           attribution='&copy; <a href="https://www.google.com/maps">Google Maps</a> contributors'
          />
@@ -347,6 +359,68 @@ const customIcon = L.icon({
              </Paper>
           </Box>
         </Box>
+        <Grid >
+          <Paper sx={{ p: 2, borderRadius: 2, border: '1px solid #e0e0e0'}}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2, display: 'flex', alignItems: 'center' }}>
+              Amenities
+            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 5 }}>
+            {
+              propertyDetails?.moreDetails?.isFurnished && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <BedIcon sx={{ color: "primary.main" }} />
+                  <Typography variant="body1">
+                    Furnished
+                  </Typography>
+                </Box>
+              )
+            }
+            {
+              propertyDetails?.moreDetails?.isGym && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <GymIcon color="primary" />
+                  <Typography variant="body1" >
+                    Gym
+                  </Typography>
+                </Box>
+              )
+            }
+            {
+              propertyDetails?.moreDetails?.isParking && (  
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <ParkingIcon color="primary" />
+                  <Typography variant="body1" >
+                    Parking
+                  </Typography>
+                </Box>
+              )
+            }
+            {
+              propertyDetails?.moreDetails?.isPetFriendly && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <PetsIcon color="primary" />
+                  <Typography variant="body1" >
+                    Pet Friendly
+                  </Typography>
+                </Box>
+              )
+            }
+            {
+              propertyDetails?.moreDetails?.isSwimmingPool && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <PoolIcon color="primary" />
+                  <Typography variant="body1" >
+                    Swimming Pool
+                  </Typography>
+                </Box>
+              )
+            }
+
+            </Box>
+           
+            
+          </Paper>
+        </Grid>
       </Container>
     </Box>
   );
